@@ -1,0 +1,36 @@
+name: Auto PR + Merge
+
+on:
+  push:
+    branches:
+      - minha-branch # Altere para o nome da branch que você usa
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  create-pr-and-automerge:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Create Pull Request
+        uses: peter-evans/create-pull-request@v5
+        id: cpr
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          base: main
+          branch: nprd
+          title: "Auto PR de minha-branch para main"
+          body: "Este PR foi criado automaticamente após push."
+          draft: false
+
+      - name: Enable Auto-merge
+        uses: "peter-evans/enable-pull-request-automerge@v2"
+        if: steps.cpr.outputs.pull-request-url != ''
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          pull-request-number: ${{ steps.cpr.outputs.pull-request-number }}
+          merge-method: squash
