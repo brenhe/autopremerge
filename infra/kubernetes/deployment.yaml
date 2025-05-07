@@ -1,0 +1,20 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: teste-app
+  namespace: teste
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: teste-app
+  template:
+    metadata:
+      labels:
+        app: teste-app
+    spec:
+      containers:
+        - name: pdv-container
+          image: "brenhe/estoq-hub:83c9260873485e518f6bc0622900a7a476394d8e"
+          ports:
+            - containerPort: 3030
