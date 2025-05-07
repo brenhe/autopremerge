@@ -3,7 +3,7 @@ name: Auto PR + Merge
 on:
   push:
     branches:
-      - minha-branch # Altere para o nome da branch que você usa
+      - nprd
 
 permissions:
   contents: write
