@@ -21,8 +21,8 @@ jobs:
         id: cpr
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
-          base: nprd
-          branch: main
+          base: main
+          branch: nprd
           title: "Auto PR de minha-branch para main"
           body: "Este PR foi criado automaticamente após push."
           draft: false
