@@ -14,20 +14,24 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout da branch nprd
+      - name: Checkout completo da branch nprd
         uses: actions/checkout@v3
         with:
           ref: nprd
-          fetch-depth: 0  # necessário para criar branches
+          fetch-depth: 0  # necessário para comparação com main
 
       - name: Configurar Git
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
 
-      - name: Criar nova branch temporária para o PR
+      - name: Buscar a branch main
+        run: git fetch origin main:main
+
+      - name: Criar branch temporária com base em nprd
         run: |
           git checkout -b tmp-auto-pr-to-main
+          git rebase main  # garante que as mudanças fiquem visíveis como dif
           git push origin tmp-auto-pr-to-main --force
 
       - name: Criar Pull Request de tmp-auto-pr-to-main para main
