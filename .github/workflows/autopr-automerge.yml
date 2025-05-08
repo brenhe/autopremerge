@@ -1,4 +1,4 @@
-name: Auto PR + Merge
+name: Auto PR + Merge de nprd → main
 
 on:
   push:
@@ -10,30 +10,39 @@ permissions:
   pull-requests: write
 
 jobs:
-  create-pr-and-automerge:
+  auto-pr-merge:
     runs-on: ubuntu-latest
+
     steps:
-      - name: Checkout
+      - name: Checkout da branch nprd
         uses: actions/checkout@v3
+        with:
+          ref: nprd
+          fetch-depth: 0
 
-      - name: Create Pull Request
-        uses: peter-evans/create-pull-request@v5
+      - name: Configurar Git
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+      - name: Criar Pull Request de nprd → main
         id: cpr
+        uses: peter-evans/create-pull-request@v5
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
-          base: nprd
-          branch: main
-          title: "Auto PR de nprd para main"
-          body: "Este PR foi criado automaticamente após push para nprd."
+          base: main
+          branch: nprd
+          title: "Auto PR: nprd → main"
+          body: "PR automático gerado por push na branch nprd."
           draft: false
+          delete-branch: false
+          branch-suffix: timestamp  # evita conflito se PR já existir
+          labels: auto-pr
 
-      - name: Espera 10 segundos (para o PR aparecer no histórico)
-        run: sleep 10
-
-      - name: Enable Auto-merge
+      - name: Habilitar Auto Merge do PR
+        if: steps.cpr.outputs.pull-request-number != ''
         uses: peter-evans/enable-pull-request-automerge@v2
-        if: steps.cpr.outputs.pull-request-url != ''
         with:
-          token: ${{ secrets.GITHUB_TOKEN }}
           pull-request-number: ${{ steps.cpr.outputs.pull-request-number }}
           merge-method: squash
+          token: ${{ secrets.GITHUB_TOKEN }}
