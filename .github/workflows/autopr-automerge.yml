@@ -1,4 +1,4 @@
-name: Auto PR + Merge
+name: Auto PR de nprd para main
 
 on:
   push:
@@ -10,24 +10,26 @@ permissions:
   pull-requests: write
 
 jobs:
-  create-pr-and-automerge:
+  auto-pr:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout
+      - name: Checkout branch nprd
         uses: actions/checkout@v3
+        with:
+          ref: nprd
 
       - name: Create Pull Request
         uses: peter-evans/create-pull-request@v5
         id: cpr
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
-          base: nprd
-          branch: main
+          base: main          # destino
+          branch: nprd        # origem
           title: "Auto PR de nprd para main"
           body: "Este PR foi criado automaticamente após push para nprd."
           draft: false
 
-      - name: Espera 10 segundos (para o PR aparecer no histórico)
+      - name: Espera para garantir visibilidade do PR
         run: sleep 10
 
       - name: Enable Auto-merge
