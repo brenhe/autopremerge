@@ -21,14 +21,17 @@ jobs:
         id: cpr
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
-          base: nprd
-          branch: main
-          title: "Auto PR de minha-branch para main"
-          body: "Este PR foi criado automaticamente após push."
+          base: main
+          branch: nprd
+          title: "Auto PR de nprd para main"
+          body: "Este PR foi criado automaticamente após push para nprd."
           draft: false
 
+      - name: Espera 10 segundos (para o PR aparecer no histórico)
+        run: sleep 10
+
       - name: Enable Auto-merge
-        uses: "peter-evans/enable-pull-request-automerge@v2"
+        uses: peter-evans/enable-pull-request-automerge@v2
         if: steps.cpr.outputs.pull-request-url != ''
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
