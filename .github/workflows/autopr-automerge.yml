@@ -1,4 +1,4 @@
-name: Auto PR e Merge de nprd → main
+name: Auto PR + Merge de nprd → main
 
 on:
   push:
@@ -10,45 +10,39 @@ permissions:
   pull-requests: write
 
 jobs:
-  auto-pr:
+  auto-pr-merge:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout completo da branch nprd
+      - name: Checkout da branch nprd
         uses: actions/checkout@v3
         with:
           ref: nprd
-          fetch-depth: 0  # necessário para comparação com main
+          fetch-depth: 0
 
       - name: Configurar Git
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
 
-      - name: Buscar a branch main
-        run: git fetch origin main:main
-
-      - name: Criar branch temporária com base em nprd
-        run: |
-          git checkout -b tmp-auto-pr-to-main
-          git rebase main  # garante que as mudanças fiquem visíveis como dif
-          git push origin tmp-auto-pr-to-main --force
-
-      - name: Criar Pull Request de tmp-auto-pr-to-main para main
+      - name: Criar Pull Request de nprd → main
         id: cpr
         uses: peter-evans/create-pull-request@v5
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           base: main
-          branch: tmp-auto-pr-to-main
+          branch: nprd
           title: "Auto PR: nprd → main"
-          body: "PR automático criado a partir de push na branch nprd."
+          body: "PR automático gerado por push na branch nprd."
           draft: false
+          delete-branch: false
+          branch-suffix: timestamp  # evita conflito se PR já existir
+          labels: auto-pr
 
-      - name: Ativar Auto-Merge
-        if: steps.cpr.outputs.pull-request-url != ''
+      - name: Habilitar Auto Merge do PR
+        if: steps.cpr.outputs.pull-request-number != ''
         uses: peter-evans/enable-pull-request-automerge@v2
         with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-          merge-method: squash
           pull-request-number: ${{ steps.cpr.outputs.pull-request-number }}
+          merge-method: squash
+          token: ${{ secrets.GITHUB_TOKEN }}
